@@ -2,6 +2,8 @@
 using ASP_32.Services.Kdf;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace ASP_32.Controllers.Api
 {
@@ -39,6 +41,9 @@ namespace ASP_32.Controllers.Api
 
             var userAccess = _dataContext
                 .UserAccesses
+                .AsNoTracking()
+                .Include(ua => ua.User)
+                .Include(ua => ua.Role)
                 .FirstOrDefault(ua => ua.Login == login);
 
             if (userAccess == null)
@@ -52,6 +57,11 @@ namespace ASP_32.Controllers.Api
                 HttpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return new { Status = "Credentials rejected." };
             }
+            // зберігаємо у сесії факт успішної автентифікації
+            HttpContext.Session.SetString(
+                "UserController::Authenticate",
+                JsonSerializer.Serialize(userAccess)
+            );
             return userAccess;
         }
 
@@ -87,4 +97,24 @@ namespace ASP_32.Controllers.Api
  *  R   GET
  *  U   PUT(replace) PATCH(partially update)
  *  D   DELETE
+ */
+/* Авторизація. Схеми.
+ * 0) Кукі (Cookie) - заголовки НТТР-пакету, які зберігаються у клієнта
+ *      та автоматично включаються ним до всіх наступних запитів до сервера
+ *      "+" простота використання
+ *      "-" автоматизовано тільки у браузерах, в інших програмах це справа
+ *           програміста. 
+ *      "-" відкритість, легкість перехоплення даних
+ *      
+ * 1) Сесії (серверні): базуються на Кукі, проте всі дані зберігаються
+ *     на сервері, у куках передається тільки ідентифікатор сесії
+ *     "+" покращена безпека
+ *     "-" велике навантаження на сховище сервера
+ *     
+ * 2) Токени (клієнтські): клієнт зберігає токен, який лише перевіряється
+ *     сервером.
+ *     "+" відмова від кукі та сесій
+ *     "-" більше навантаження на роботу сервера
+ *  2а) Токени-ідентифікатори
+ *  2б) Токени з даними (JWT)
  */

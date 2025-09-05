@@ -32,7 +32,11 @@ document.addEventListener('submit', e => {
                 'Authorization': `Basic ${credentials}`
             }
         }).then(r => r.json())
-            .then(console.log)
+            .then(j => {
+                if (typeof j.status == 'undefined') {
+                    window.location.reload();
+                }
+            })
             .catch(console.error);
     }
 });
