@@ -18,31 +18,25 @@ namespace ASP_32.Middleware.Auth
         {
             if(context.Request.Query.ContainsKey("logout"))
             {
-                context.Session.Remove("UserController::Authenticate");
+                // context.Session.Remove("UserController::Authenticate");
+                authService.RemoveAuth();
                 context.Response.Redirect(context.Request.Path);
                 return;
             }
-            if (context.Session.Keys.Contains("UserController::Authenticate"))
+            if(authService.GetAuth<UserAccess>() is UserAccess userAccess)
             {
-                if( JsonSerializer.Deserialize<UserAccess>(
-                        context.Session.GetString("UserController::Authenticate")!)
-                    is UserAccess userAccess)
-                {
-                    context.User = new ClaimsPrincipal(
-                        new ClaimsIdentity(
-                            [
-                                new Claim(ClaimTypes.Sid, userAccess.Id.ToString()),
-                                new Claim(ClaimTypes.Name, userAccess.User.Name)
-                            ],
-                            nameof(SessionAuthMiddleware)
-                        )
-                    );
-                }
-                else
-                {
-                    context.Session.Remove("UserController::Authenticate");
-                }
+                context.User = new ClaimsPrincipal(
+                    new ClaimsIdentity(
+                        [
+                            new Claim(ClaimTypes.Sid, userAccess.Id.ToString()),
+                            new Claim(ClaimTypes.Name, userAccess.User.Name),
+                            new Claim(ClaimTypes.Role, userAccess.RoleId),
+                        ],
+                        nameof(SessionAuthMiddleware)
+                    )
+                );
             }
+            
             await _next(context);
         }
     }

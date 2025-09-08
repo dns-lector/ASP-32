@@ -1,4 +1,5 @@
 ﻿using ASP_32.Data;
+using ASP_32.Services.Auth;
 using ASP_32.Services.Kdf;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,10 +10,14 @@ namespace ASP_32.Controllers.Api
 {
     [Route("api/user")]
     [ApiController]
-    public class UserController(DataContext dataContext, IKdfService kdfService) : ControllerBase
+    public class UserController(
+            DataContext dataContext, 
+            IKdfService kdfService,
+            IAuthService authService) : ControllerBase
     {
         private readonly DataContext _dataContext = dataContext;
         private readonly IKdfService _kdfService = kdfService;
+        private readonly IAuthService _authService = authService;
 
         [HttpGet]
         public object Authenticate()
@@ -58,10 +63,11 @@ namespace ASP_32.Controllers.Api
                 return new { Status = "Credentials rejected." };
             }
             // зберігаємо у сесії факт успішної автентифікації
-            HttpContext.Session.SetString(
-                "UserController::Authenticate",
-                JsonSerializer.Serialize(userAccess)
-            );
+            // HttpContext.Session.SetString(
+            //     "UserController::Authenticate",
+            //     JsonSerializer.Serialize(userAccess)
+            // );
+            _authService.SetAuth(userAccess);
             return userAccess;
         }
 

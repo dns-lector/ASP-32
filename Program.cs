@@ -22,7 +22,7 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
-
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IAuthService, SessionAuthService>();
 
 var app = builder.Build();

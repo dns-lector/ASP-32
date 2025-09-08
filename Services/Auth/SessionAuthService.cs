@@ -1,4 +1,7 @@
-﻿namespace ASP_32.Services.Auth
+﻿using ASP_32.Data.Entities;
+using System.Text.Json;
+
+namespace ASP_32.Services.Auth
 {
     public class SessionAuthService(
         IHttpContextAccessor httpContextAccessor) : IAuthService
@@ -6,9 +9,20 @@
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
         const String sessionKey = "ISessionAuthService";
 
-        public object? GetAuth()
+        public T? GetAuth<T>() where T : notnull
         {
-            throw new NotImplementedException();
+            if (_httpContextAccessor.HttpContext?
+                .Session.Keys.Contains(sessionKey) ?? false)
+            {
+                if (JsonSerializer.Deserialize<T>(
+                        _httpContextAccessor.HttpContext!
+                        .Session.GetString(sessionKey)!)
+                    is T payload)
+                {
+                    return payload;
+                }
+            }
+            return default;
         }
 
         public void RemoveAuth()
@@ -18,7 +32,10 @@
 
         public void SetAuth(object payload)
         {
-            throw new NotImplementedException();
+            _httpContextAccessor.HttpContext?.Session.SetString(
+                sessionKey,
+                JsonSerializer.Serialize(payload)
+            );
         }
     }
 }
