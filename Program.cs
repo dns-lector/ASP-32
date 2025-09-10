@@ -2,6 +2,7 @@ using ASP_32.Data;
 using ASP_32.Middleware.Auth;
 using ASP_32.Services.Auth;
 using ASP_32.Services.Kdf;
+using ASP_32.Services.Storage;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +25,7 @@ builder.Services.AddSession(options =>
 });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IAuthService, SessionAuthService>();
+builder.Services.AddSingleton<IStorageService, DiskStorageService>();
 
 var app = builder.Build();
 

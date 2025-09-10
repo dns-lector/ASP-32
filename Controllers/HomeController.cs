@@ -1,4 +1,6 @@
+using ASP_32.Data;
 using ASP_32.Models;
+using ASP_32.Models.Home;
 using ASP_32.Services.Kdf;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -10,17 +12,32 @@ namespace ASP_32.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IKdfService _kdfService;
+        private readonly DataContext _dataContext;
 
-        public HomeController(ILogger<HomeController> logger, IKdfService kdfService)
+        public HomeController(ILogger<HomeController> logger, IKdfService kdfService, DataContext dataContext)
         {
             _logger = logger;
             _kdfService = kdfService;
+            _dataContext = dataContext;
         }
 
         public IActionResult Index()
         {
             // 2744FC45FF2F7CACD2EB
             // ViewData["dk"] = _kdfService.Dk("Admin", "4506C746-8FDD-4586-9BF4-95D6933C3B4F");
+            HomeIndexViewModel model = new()
+            {
+                ProductGroups = _dataContext
+                    .ProductGroups
+                    .Where(g => g.DeletedAt == null)
+                    .AsEnumerable()
+            };
+            return View(model);
+        }
+
+        public IActionResult Category(String id)
+        {
+            ViewData["slug"] = id;
             return View();
         }
 

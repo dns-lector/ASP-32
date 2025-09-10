@@ -16,6 +16,7 @@
 
 document.addEventListener('submit', e => {
     const form = e.target;
+
     if (form.id == 'auth-form') {
         e.preventDefault();
         const formData = new FormData(form);
@@ -38,5 +39,18 @@ document.addEventListener('submit', e => {
                 }
             })
             .catch(console.error);
+    }
+
+    if (form.id == "admin-group-form") {
+        e.preventDefault();
+        fetch("/api/group", {
+            method: 'POST',
+            body: new FormData(form)
+        }).then(r => r.json()).then(j => {
+            alert(j.status);
+            if (j.code == 200) {
+                form.reset();
+            }
+        })
     }
 });
