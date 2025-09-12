@@ -53,4 +53,18 @@ document.addEventListener('submit', e => {
             }
         })
     }
+
+    if (form.id == "admin-product-form") {
+        e.preventDefault();
+        // Локальна валідація
+        fetch("/api/product", {
+            method: 'POST',
+            body: new FormData(form)
+        }).then(r => r.json()).then(j => {
+            alert(j.status);
+            if (j.code == 200) {
+                form.reset();
+            }
+        })
+    }
 });

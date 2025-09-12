@@ -54,7 +54,15 @@ namespace ASP_32.Controllers
 
             if (isAdmin)
             {
-                return View();
+                HomeAdminViewModel model = new()
+                {
+                    ProductGroups = _dataContext
+                        .ProductGroups
+                        .Where(g => g.DeletedAt == null)
+                        .AsEnumerable()
+                };
+
+                return View(model);
             }
             else
             {
