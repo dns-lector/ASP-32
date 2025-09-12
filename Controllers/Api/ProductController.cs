@@ -51,3 +51,7 @@ namespace ASP_32.Controllers.Api
         }
     }
 }
+/* Д.З. Реалізувати валідацію моделі Product (ApiProductFormModel)
+ * - засобами фронтенду (JS перед надсиланням)
+ * - засобами ASP при прийомі даних
+ */

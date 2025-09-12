@@ -3,6 +3,7 @@ using ASP_32.Models;
 using ASP_32.Models.Home;
 using ASP_32.Services.Kdf;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -37,8 +38,15 @@ namespace ASP_32.Controllers
 
         public IActionResult Category(String id)
         {
-            ViewData["slug"] = id;
-            return View();
+            HomeCategoryViewModel model = new()
+            {
+                ProductGroup = _dataContext
+                .ProductGroups
+                .Include(g => g.Products)
+                .AsNoTracking()
+                .FirstOrDefault(g => g.Slug == id && g.DeletedAt == null)
+            };
+            return View(model);
         }
 
         public IActionResult Privacy()
