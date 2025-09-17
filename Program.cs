@@ -10,10 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<IKdfService, PbKdf1Service>();
+
 builder.Services.AddDbContext<DataContext>(options => 
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")
 ));
+builder.Services.AddScoped<DataAccessor>();
 
 builder.Services.AddDistributedMemoryCache();
 
@@ -27,6 +29,16 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IAuthService, SessionAuthService>();
 builder.Services.AddSingleton<IStorageService, DiskStorageService>();
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy.AllowAnyOrigin();
+        });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -39,9 +51,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
+app.UseCors();
 app.UseAuthorization();
-
 app.MapStaticAssets();
 
 app.UseSession();

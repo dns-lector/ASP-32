@@ -1,4 +1,5 @@
 ﻿using ASP_32.Data;
+using ASP_32.Data.Entities;
 using ASP_32.Models.Api;
 using ASP_32.Services.Storage;
 using Microsoft.AspNetCore.Http;
@@ -10,10 +11,12 @@ namespace ASP_32.Controllers.Api
     [ApiController]
     public class ProductController(
             IStorageService storageService,
+            DataAccessor dataAccessor,
             DataContext dataContext) : ControllerBase
     {
         private readonly IStorageService _storageService = storageService;
         private readonly DataContext _dataContext = dataContext;
+        private readonly DataAccessor _dataAccessor = dataAccessor;
 
         [HttpPost]
         public object AddProduct(ApiProductFormModel model)

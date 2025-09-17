@@ -1,5 +1,7 @@
 ﻿using ASP_32.Data;
+using ASP_32.Data.Entities;
 using ASP_32.Models.Home;
+using ASP_32.Models.Rest;
 using ASP_32.Services.Storage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,11 +11,29 @@ namespace ASP_32.Controllers.Api
     [Route("api/group")]
     [ApiController]
     public class GroupController(
-            IStorageService storageService, 
+            IStorageService storageService,
+            DataAccessor dataAccessor,
             DataContext dataContext) : ControllerBase
     {
         private readonly IStorageService _storageService = storageService;
         private readonly DataContext _dataContext = dataContext;
+        private readonly DataAccessor _dataAccessor = dataAccessor;
+
+        [HttpGet]
+        public RestResponse AllGroups()
+        {
+            return new()
+            {
+                // Status = RestStatus.Status400,
+                Meta = new() { 
+                    Manipulations = ["GET", "POST"],
+                    Cache = 24 * 60 * 60,
+                    Service = "Shop API: product groups",
+                    DataType = "json/array"
+                },
+                Data = _dataAccessor.GetProductGroups()
+            };
+        }
 
         [HttpPost]
         public object AddGroup(AdminGroupFormModel model)
