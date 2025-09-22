@@ -7,5 +7,6 @@
         public bool   IsOk   { get; set; } = true;
 
         public static readonly RestStatus Status400 = new() { IsOk = false, Code = 400, Phrase = "Bad Request" };
+        public static readonly RestStatus Status401 = new() { IsOk = false, Code = 401, Phrase = "UnAuthorized" };
     }
 }

@@ -39,3 +39,35 @@ namespace ASP_32.Services.Auth
         }
     }
 }
+/*              login
+ * Client --------------------> Server <-> Database
+ *            Cookie:session_id        <- [session]
+ *       <----------------------      
+ *       
+ *           Cookie:session_id
+ * Client --------------------> Server <-> [session]      
+ *                                   Authorize
+ *                                   
+ *                                   
+ *                                   
+ *                                   
+ *              login
+ * Client --------------------> Server <-> Database
+ *            token                     <-- token
+ *       <---------------------- 
+ *       
+ *               token                    
+ * Client --------------------> Server <-> Database      
+ *                                   Authorize      
+ *                                   
+ *                                   
+ *                                   
+ *              login
+ * Client --------------------> Server <-> Database
+ *            token                     <-- token + signing
+ *       <---------------------- 
+ *       
+ *               token                    
+ * Client --------------------> Server <-> check signature    
+ *                                   Authorize                                        
+ */

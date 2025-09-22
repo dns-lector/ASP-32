@@ -35,7 +35,9 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
         policy =>
         {
-            policy.AllowAnyOrigin();
+            policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader();
         });
 });
 
@@ -57,6 +59,8 @@ app.MapStaticAssets();
 
 app.UseSession();
 app.UseSessionAuth();
+
+app.UseJwtAuth();
 
 app.MapControllerRoute(
     name: "default",
