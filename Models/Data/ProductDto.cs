@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
-namespace ASP_32.Data.Entities
+namespace ASP_32.Models.Data
 {
-    public record Product
+    public class ProductDto
     {
         public Guid Id { get; set; }
         public Guid GroupId { get; set; }
@@ -12,19 +11,7 @@ namespace ASP_32.Data.Entities
         public String? Slug { get; set; } = null!;
         public String? ImageUrl { get; set; } = null!;
         public int Stock { get; set; }
-
-        [Column(TypeName = "decimal(12,2)")]
         public double Price { get; set; }
-        public DateTime? DeletedAt { get; set; }
-
-        [JsonIgnore]
-        public ProductGroup Group { get; set; } = null!;
-
-        [JsonIgnore]
-        public ICollection<Feedback> Feedbacks { get; set; } = [];
-
-        [NotMapped]
         public int FeedbackCount { get; set; }
-
     }
 }

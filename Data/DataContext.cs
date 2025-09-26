@@ -11,6 +11,8 @@ namespace ASP_32.Data
         public DbSet<ProductGroup> ProductGroups { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
 
         public DataContext(DbContextOptions options) : base(options)
         { }
@@ -60,6 +62,23 @@ namespace ASP_32.Data
                     Dk = "2744FC45FF2F7CACD2EB"  // password = Admin
                 });
             #endregion
+
+            modelBuilder.Entity<Cart>()
+                .HasOne(c => c.User)
+                .WithMany(u => u.Carts);
+
+            modelBuilder.Entity<CartItem>()
+                .HasOne(ci => ci.Cart)
+                .WithMany(c => c.CartItems);
+
+            modelBuilder.Entity<CartItem>()
+                .HasOne(ci => ci.Product)
+                .WithMany();
+
+            modelBuilder.Entity<Product>()
+                .HasMany(p => p.Feedbacks)
+                .WithOne()
+                .HasForeignKey(f => f.ProductId);
 
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Group)
