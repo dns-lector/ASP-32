@@ -9,7 +9,23 @@ namespace ASP_32.Data
         private readonly DataContext _dataContext = dataContext;
         private readonly IKdfService _kdfService = kdfService;
 
+        public bool DeleteCartItem(String userId, String ciId)
+        {
+            Guid userGuid = Guid.Parse(userId);
+            Guid ciGuid = Guid.Parse(ciId);
+            Cart? cart = GetActiveCart(userId);
+            if (cart == null)
+            {
+                return false;
+            }
+            CartItem? ci = cart.CartItems.FirstOrDefault(ci => ci.Id == ciGuid);
+            if (ci == null)
+            {
+                return false;
+            }
 
+            return true;
+        }
         public void AddToCart(String userId, String productId)
         {
             Guid userGuid = Guid.Parse(userId);
@@ -46,7 +62,7 @@ namespace ASP_32.Data
                     Product = _dataContext.Products.Find(productGuid)!
                 };
                 _dataContext.CartItems.Add(cartItem);
-                cart.CartItems.Add(cartItem);
+                // cart.CartItems.Add(cartItem);
             }
             else
             {

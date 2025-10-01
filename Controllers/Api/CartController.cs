@@ -13,7 +13,73 @@ namespace ASP_32.Controllers.Api
         ) : ControllerBase
     {
         private readonly DataAccessor _dataAccessor = dataAccessor;
+        private RestResponse restResponse = new()
+        {
+            Meta = new()
+            {
+                Service = "Shop API 'User cart'.",
+                ServerTime = DateTime.Now.Ticks,
+            }
+        };
+        private String imgPath => $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/Storage/Item/";
 
+        [HttpGet]
+        public RestResponse GetActiveCart()
+        {
+            RestResponse restResponse = new()
+            {
+                Meta = new()
+                {
+                    Service = "Shop API 'User cart'. Get Active Cart",
+                    ServerTime = DateTime.Now.Ticks,
+                }
+            };
+
+            if (HttpContext.User.Identity?.IsAuthenticated ?? false)
+            {
+                try
+                {
+                    String userId = HttpContext.User.Claims
+                        .First(c => c.Type == ClaimTypes.PrimarySid).Value;
+
+                    var activeCart = _dataAccessor
+                        .GetActiveCart(userId);
+
+                    restResponse.Data = activeCart == null ? null :
+                        activeCart with { 
+                            CartItems = activeCart
+                            .CartItems
+                            .Select(ci => ci with
+                            {
+                                Product = ci.Product with
+                                {
+                                    ImageUrl = imgPath + (ci.Product.ImageUrl ?? "no-image.jpg")
+                                }
+                            }).ToList()
+                        };
+                }
+                catch (Exception ex) when (ex is ArgumentNullException)
+                {
+                    restResponse.Status = RestStatus.Status400;
+                    restResponse.Data = ex.Message;
+                }
+                catch (Exception ex) when (ex is InvalidOperationException)
+                {
+                    restResponse.Status = RestStatus.Status401;
+                    restResponse.Data = "Error user identification. Check JWT";
+                }
+                catch (Exception ex) when (ex is FormatException)
+                {
+                    restResponse.Status = RestStatus.Status400;
+                    restResponse.Data = ex.Message;
+                }
+            }
+            else
+            {
+                restResponse.Status = RestStatus.Status401;
+            }
+            return restResponse;
+        }
 
         [HttpPost("{id}")]
         public RestResponse AddProduct(String id)  // Product id
@@ -57,6 +123,53 @@ namespace ASP_32.Controllers.Api
                 restResponse.Status = RestStatus.Status401;
             }
             return restResponse;
+        }
+
+        [HttpDelete("{id}")]
+        public RestResponse DeleteCartItem(String id)  // cart item id
+        {
+            this.restResponse.Meta.Service += "Delete Cart Item";
+
+            return this.restResponse;
+        }
+
+        [HttpDelete]
+        public RestResponse DeleteCart()
+        {
+            return new();
+        }
+
+        private void ExecuteAuthorized(Action<String> action)
+        {
+            if (HttpContext.User.Identity?.IsAuthenticated ?? false)
+            {
+                try
+                {
+                    String userId = HttpContext.User.Claims
+                        .First(c => c.Type == ClaimTypes.PrimarySid).Value;
+
+                    action(userId);
+                }
+                catch (Exception ex) when (ex is ArgumentNullException)
+                {
+                    restResponse.Status = RestStatus.Status400;
+                    restResponse.Data = ex.Message;
+                }
+                catch (Exception ex) when (ex is InvalidOperationException)
+                {
+                    restResponse.Status = RestStatus.Status401;
+                    restResponse.Data = "Error user identification. Check JWT";
+                }
+                catch (Exception ex) when (ex is FormatException)
+                {
+                    restResponse.Status = RestStatus.Status400;
+                    restResponse.Data = ex.Message;
+                }
+            }
+            else
+            {
+                restResponse.Status = RestStatus.Status401;
+            }
         }
     }
 }
