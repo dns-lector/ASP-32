@@ -125,11 +125,24 @@ namespace ASP_32.Controllers.Api
             return restResponse;
         }
 
+        [HttpPatch("{id}")]
+        public RestResponse UpdateCartItem(String id, [FromQuery]int cnt)  // cart item id
+        {
+            this.restResponse.Meta.Service += "Update Cart Item for " + cnt;
+            ExecuteAuthorized(
+                (userId) => this.restResponse.Data = 
+                    _dataAccessor.UpdateCartItem(userId, id, cnt)
+            );
+            return this.restResponse;
+        }
+
         [HttpDelete("{id}")]
         public RestResponse DeleteCartItem(String id)  // cart item id
         {
             this.restResponse.Meta.Service += "Delete Cart Item";
-
+            ExecuteAuthorized(
+                (userId) => this.restResponse.Data = _dataAccessor.DeleteCartItem(userId, id)
+            );
             return this.restResponse;
         }
 
